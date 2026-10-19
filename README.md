@@ -287,3 +287,50 @@ The Week 2 mass flow comes from the fan diameter, and T4 was then tuned to match
 - SAE AS755, Aircraft propulsion system performance station designation and nomenclature
 - ISO 2533, Standard atmosphere
 - CFM56-7B published specifications (EASA type-certificate data sheet, ICAO Aircraft Engine Emissions Databank)
+
+
+## Week 3: component sizing and validation (this commit)
+
+Status: Week 3 done. Report: `docs/PROP_WEEK3_REPORT.docx`.
+
+| Week | Task | Status | Folder / deliverable |
+|---|---|---|---|
+| 3 | Component sizing and validation | **Done** | `week3/` and the Week 3 report |
+
+### New files (`week3/`)
+
+| File | What it does |
+|---|---|
+| `varcycle.py` | Independent cycle with temperature-dependent cp and R = 287 J/(kg·K) |
+| `sizing.py` | Flow areas from the compressible flow function, each checked with a ρ·V·A calculation |
+| `calibrate.py` | Solves T4 and a common efficiency offset against published thrust and ICAO fuel flow, then runs the sizing |
+
+`cycle.py` from Week 2 is kept unchanged as the baseline for comparison. Week 3 needs SciPy, so add `scipy` to `requirements.txt`
+
+
+### Results (SLS take-off, ISA, M0)
+
+| Quantity | Revised model | Published | Check type |
+|---|---|---|---|
+| Thrust | 116,988 N | 116,988 N | Calibrated |
+| Fuel flow | 1.221 kg/s | 1.221 kg/s (ICAO) | Calibrated |
+| TSFC | 0.3685 lb/(lbf.h) | 0.3685 (from ICAO) | Calibrated |
+| Fan tip diameter | 1.537 m | 1.549 m (-0.8 %) | **Independent** |
+
+Combined sensitivity: about ±3.3 % on thrust at fixed T4, ±6.8 % on TSFC, ±75 K on T4.
+
+### Changes made after checking Week 2
+
+- Airflow anchored to the published 341.1 kg/s (752 lb/s), not the fan-geometry value of 348.2 kg/s.
+- Hot-gas cp, γ and R made consistent (Week 2 implied R = 311 J/(kg·K)).
+- LPT mass-flow factor corrected (power-balance residual -0.27 % to 0).
+- Take-off OPR changed from 32.6 to 27.2 (provisional, unconfirmed).
+- TSFC reference changed from the generic 0.330 to the ICAO-derived 0.3685.
+
+### Week 3 limitations
+
+- Thrust and fuel flow are calibrated, so they no longer validate the model.
+- T4 (1602 K) is a fitting parameter, not the real turbine entry temperature.
+- The 752 lb/s airflow has one source, and the take-off OPR is unresolved.
+- Only the fan diameter can be compared with published data. All other areas depend on assumed Mach numbers.
+- Cruise is not validated.
